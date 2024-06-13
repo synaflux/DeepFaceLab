@@ -35,6 +35,7 @@ class ModelBase(object):
                        debug=False,
                        force_model_class_name=None,
                        silent_start=False,
+                       target_iter=None,
                        **kwargs):
         self.is_training = is_training
         self.is_exporting = is_exporting
@@ -45,6 +46,7 @@ class ModelBase(object):
         self.pretrained_model_path = pretrained_model_path
         self.no_preview = no_preview
         self.debug = debug
+        self.target_iter = target_iter
 
         self.model_class_name = model_class_name = Path(inspect.getmodule(self).__file__).parent.name.rsplit("_", 1)[1]
 
@@ -189,7 +191,7 @@ class ModelBase(object):
         self.random_flip = self.options.get('random_flip',True)
         self.random_src_flip = self.options.get('random_src_flip', False)
         self.random_dst_flip = self.options.get('random_dst_flip', True)
-        
+
         self.on_initialize()
         self.options['batch_size'] = self.batch_size
 
@@ -282,11 +284,13 @@ class ModelBase(object):
 
     def ask_autobackup_hour(self, default_value=0):
         default_autobackup_hour = self.options['autobackup_hour'] = self.load_or_def_option('autobackup_hour', default_value)
-        self.options['autobackup_hour'] = io.input_int(f"Autobackup every N hour", default_autobackup_hour, add_info="0..24", help_message="Autobackup model files with preview every N hour. Latest backup located in model/<>_autobackups/01")
+        # self.options['autobackup_hour'] = io.input_int(f"Autobackup every N hour", default_autobackup_hour, add_info="0..24", help_message="Autobackup model files with preview every N hour. Latest backup located in model/<>_autobackups/01")
+        self.options['autobackup_hour'] = default_autobackup_hour
 
     def ask_write_preview_history(self, default_value=False):
         default_write_preview_history = self.load_or_def_option('write_preview_history', default_value)
-        self.options['write_preview_history'] = io.input_bool(f"Write preview history", default_write_preview_history, help_message="Preview history will be writed to <ModelName>_history folder.")
+        # self.options['write_preview_history'] = io.input_bool(f"Write preview history", default_write_preview_history, help_message="Preview history will be writed to <ModelName>_history folder.")
+        self.options['write_preview_history'] = default_write_preview_history
 
         if self.options['write_preview_history']:
             if io.is_support_windows():
@@ -296,24 +300,29 @@ class ModelBase(object):
 
     def ask_target_iter(self, default_value=0):
         default_target_iter = self.load_or_def_option('target_iter', default_value)
-        self.options['target_iter'] = max(0, io.input_int("Target iteration", default_target_iter))
+        # self.options['target_iter'] = max(0, io.input_int("Target iteration", default_target_iter))
+        self.options['target_iter'] = default_target_iter
 
     def ask_random_flip(self):
         default_random_flip = self.load_or_def_option('random_flip', True)
-        self.options['random_flip'] = io.input_bool("Flip faces randomly", default_random_flip, help_message="Predicted face will look more naturally without this option, but src faceset should cover all face directions as dst faceset.")
-    
+        # self.options['random_flip'] = io.input_bool("Flip faces randomly", default_random_flip, help_message="Predicted face will look more naturally without this option, but src faceset should cover all face directions as dst faceset.")
+        self.options['write_preview_history'] = default_random_flip
+
     def ask_random_src_flip(self):
         default_random_src_flip = self.load_or_def_option('random_src_flip', False)
-        self.options['random_src_flip'] = io.input_bool("Flip SRC faces randomly", default_random_src_flip, help_message="Random horizontal flip SRC faceset. Covers more angles, but the face may look less naturally.")
+        # self.options['random_src_flip'] = io.input_bool("Flip SRC faces randomly", default_random_src_flip, help_message="Random horizontal flip SRC faceset. Covers more angles, but the face may look less naturally.")
+        self.options['random_src_flip'] = default_random_src_flip
 
     def ask_random_dst_flip(self):
         default_random_dst_flip = self.load_or_def_option('random_dst_flip', True)
-        self.options['random_dst_flip'] = io.input_bool("Flip DST faces randomly", default_random_dst_flip, help_message="Random horizontal flip DST faceset. Makes generalization of src->dst better, if src random flip is not enabled.")
+        # self.options['random_dst_flip'] = io.input_bool("Flip DST faces randomly", default_random_dst_flip, help_message="Random horizontal flip DST faceset. Makes generalization of src->dst better, if src random flip is not enabled.")
+        self.options['random_dst_flip'] = default_random_dst_flip
 
     def ask_batch_size(self, suggest_batch_size=None, range=None):
         default_batch_size = self.load_or_def_option('batch_size', suggest_batch_size or self.batch_size)
 
-        batch_size = max(0, io.input_int("Batch_size", default_batch_size, valid_range=range, help_message="Larger batch size is better for NN's generalization, but it can cause Out of Memory error. Tune this value for your videocard manually."))
+        # batch_size = max(0, io.input_int("Batch_size", default_batch_size, valid_range=range, help_message="Larger batch size is better for NN's generalization, but it can cause Out of Memory error. Tune this value for your videocard manually."))
+        batch_size = default_batch_size
 
         if range is not None:
             batch_size = np.clip(batch_size, range[0], range[1])
@@ -547,7 +556,7 @@ class ModelBase(object):
     def get_summary_text(self):
         visible_options = self.options.copy()
         visible_options.update(self.options_show_override)
-        
+
         ###Generate text summary of model hyperparameters
         #Find the longest key name and value string. Used as column widths.
         width_name = max([len(k) for k in visible_options.keys()] + [17]) + 1 # Single space buffer to left edge. Minimum of 17, the length of the longest static string used "Current iteration"
