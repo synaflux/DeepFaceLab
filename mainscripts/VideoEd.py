@@ -4,6 +4,7 @@ import ffmpeg
 from pathlib import Path
 from core import pathex
 from core.interact import interact as io
+import sys
 
 def extract_video(input_file, output_dir, output_ext=None, fps=None):
     input_file_path = Path(input_file)
@@ -21,6 +22,7 @@ def extract_video(input_file, output_dir, output_ext=None, fps=None):
 
     if input_file_path is None:
         io.log_err("input_file not found.")
+        sys.exit(1)
         return
 
     if fps is None:
@@ -47,6 +49,7 @@ def extract_video(input_file, output_dir, output_ext=None, fps=None):
         job = job.run()
     except:
         io.log_err ("ffmpeg fail, job commandline:" + str(job.compile()) )
+        sys.exit(1)
 
 def cut_video ( input_file, from_time=None, to_time=None, audio_track_id=None, bitrate=None):
     input_file_path = Path(input_file)
