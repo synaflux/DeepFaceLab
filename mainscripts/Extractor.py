@@ -19,6 +19,7 @@ from facelib import FaceType, LandmarksProcessor
 from core.interact import interact as io
 from core.joblib import Subprocessor
 from core.leras import nn
+from core.leras import device
 from core import pathex
 from core.cv2ex import *
 from DFLIMG import *
@@ -757,8 +758,12 @@ def main(detector=None,
                 for filename in output_images_paths:
                     Path(filename).unlink()
 
-    device_config = nn.DeviceConfig.GPUIndexes( force_gpu_idxs or nn.ask_choose_device_idxs(choose_only_one=detector=='manual', suggest_all_gpu=True) ) \
-                    if not cpu_only else nn.DeviceConfig.CPU()
+    # device_config = nn.DeviceConfig.GPUIndexes( force_gpu_idxs or nn.ask_choose_device_idxs(choose_only_one=detector=='manual', suggest_all_gpu=True) ) \
+    #                 if not cpu_only else nn.DeviceConfig.CPU()
+    # use all gpus
+    devices = device.Devices.getDevices()
+    device_idxs = [device.index for device in devices]
+    device_config = nn.DeviceConfig.GPUIndexes(device_idxs)
 
     if face_type is None:
         face_type = io.input_str ("Face type", 'wf', ['f','wf','head'], help_message="Full face / whole face / head. 'Whole face' covers full area of face include forehead. 'head' covers full head, but requires XSeg for src and dst faceset.").lower()
