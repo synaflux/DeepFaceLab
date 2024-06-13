@@ -65,7 +65,7 @@ class SAEHDModel(ModelBase):
         if self.is_first_run() or ask_override:
             self.ask_autobackup_hour()
             self.ask_write_preview_history()
-            self.ask_target_iter()
+            # self.ask_target_iter()
             self.ask_random_src_flip()
             self.ask_random_dst_flip()
             self.ask_batch_size(suggest_batch_size)

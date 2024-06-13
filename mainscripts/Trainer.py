@@ -26,6 +26,7 @@ def trainerThread (s2c, c2s, e,
                     cpu_only=None,
                     silent_start=False,
                     execute_programs = None,
+                    target_iter=None,
                     debug=False,
                     **kwargs):
     while True:
@@ -42,7 +43,7 @@ def trainerThread (s2c, c2s, e,
 
             if not saved_models_path.exists():
                 saved_models_path.mkdir(exist_ok=True, parents=True)
-                            
+
             model = models.import_model(model_class_name)(
                         is_training=True,
                         saved_models_path=saved_models_path,
@@ -55,6 +56,7 @@ def trainerThread (s2c, c2s, e,
                         force_gpu_idxs=force_gpu_idxs,
                         cpu_only=cpu_only,
                         silent_start=silent_start,
+                        target_iter=target_iter,
                         debug=debug)
 
             is_reached_goal = model.is_reached_iter_goal()
@@ -67,10 +69,10 @@ def trainerThread (s2c, c2s, e,
                     io.log_info ("Saving....", end='\r')
                     model.save()
                     shared_state['after_save'] = True
-                    
+
             def model_backup():
                 if not debug and not is_reached_goal:
-                    model.create_backup()             
+                    model.create_backup()
 
             def send_preview():
                 if not debug:
@@ -119,7 +121,7 @@ def trainerThread (s2c, c2s, e,
                             io.log_info("")
                             io.log_info("Trying to do the first iteration. If an error occurs, reduce the model parameters.")
                             io.log_info("")
-                            
+
                             if sys.platform[0:3] == 'win':
                                 io.log_info("!!!")
                                 io.log_info("Windows 10 users IMPORTANT notice. You should set this setting in order to work correctly.")
@@ -137,7 +139,7 @@ def trainerThread (s2c, c2s, e,
 
                         if shared_state['after_save']:
                             shared_state['after_save'] = False
-                            
+
                             mean_loss = np.mean ( loss_history[save_iter:iter], axis=0)
 
                             for loss_value in mean_loss:
@@ -163,12 +165,12 @@ def trainerThread (s2c, c2s, e,
                             model_save()
                             is_reached_goal = True
                             io.log_info ('You can use preview now.')
-                
+
                 need_save = False
                 while time.time() - last_save_time >= save_interval_min*60:
                     last_save_time += save_interval_min*60
                     need_save = True
-                
+
                 if not is_reached_goal and need_save:
                     model_save()
                     send_preview()
