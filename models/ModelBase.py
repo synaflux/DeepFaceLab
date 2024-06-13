@@ -17,6 +17,7 @@ from core import imagelib, pathex
 from core.cv2ex import *
 from core.interact import interact as io
 from core.leras import nn
+from core.leras import device
 from samplelib import SampleGeneratorBase
 
 
@@ -160,8 +161,11 @@ class ModelBase(object):
             self.device_config = nn.DeviceConfig.BestGPU()
             io.log_info (f"Silent start: choosed device {'CPU' if self.device_config.cpu_only else self.device_config.devices[0].name}")
         else:
-            self.device_config = nn.DeviceConfig.GPUIndexes( force_gpu_idxs or nn.ask_choose_device_idxs(suggest_best_multi_gpu=True)) \
-                                if not cpu_only else nn.DeviceConfig.CPU()
+            # self.device_config = nn.DeviceConfig.GPUIndexes( force_gpu_idxs or nn.ask_choose_device_idxs(suggest_best_multi_gpu=True)) \
+            #                     if not cpu_only else nn.DeviceConfig.CPU()
+            devices = device.Devices.getDevices()
+            device_idxs = [device.index for device in devices]
+            self.device_config = nn.DeviceConfig.GPUIndexes(device_idxs)
 
         nn.initialize(self.device_config)
 
