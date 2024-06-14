@@ -36,7 +36,7 @@ class ModelBase(object):
                        debug=False,
                        force_model_class_name=None,
                        silent_start=False,
-                       target_iter=None,
+                       target_iter=0,
                        **kwargs):
         self.is_training = is_training
         self.is_exporting = is_exporting
