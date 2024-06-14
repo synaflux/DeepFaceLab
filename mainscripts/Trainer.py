@@ -86,6 +86,7 @@ def trainerThread (s2c, c2s, e,
             if model.get_target_iter() != 0:
                 if is_reached_goal:
                     io.log_info('Model already trained to target iteration. You can use preview.')
+                    s2c.put( {'op':'close'} )
                 else:
                     io.log_info('Starting. Target iteration: %d. Press "Enter" to stop training and save model.' % ( model.get_target_iter()  ) )
             else:
@@ -165,6 +166,7 @@ def trainerThread (s2c, c2s, e,
                             model_save()
                             is_reached_goal = True
                             io.log_info ('You can use preview now.')
+                            s2c.put( {'op':'close'} )
 
                 need_save = False
                 while time.time() - last_save_time >= save_interval_min*60:

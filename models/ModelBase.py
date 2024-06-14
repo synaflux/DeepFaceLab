@@ -47,7 +47,7 @@ class ModelBase(object):
         self.pretrained_model_path = pretrained_model_path
         self.no_preview = no_preview
         self.debug = debug
-        self.target_iter = target_iter
+        self.target_iter = int(target_iter)
 
         self.model_class_name = model_class_name = Path(inspect.getmodule(self).__file__).parent.name.rsplit("_", 1)[1]
 
@@ -191,7 +191,7 @@ class ModelBase(object):
 
         self.autobackup_hour = self.options.get('autobackup_hour', 0)
         self.write_preview_history = self.options.get('write_preview_history', False)
-        self.target_iter = self.options.get('target_iter',0)
+        # self.target_iter = self.options.get('target_iter',0)
         self.random_flip = self.options.get('random_flip',True)
         self.random_src_flip = self.options.get('random_src_flip', False)
         self.random_dst_flip = self.options.get('random_dst_flip', True)
