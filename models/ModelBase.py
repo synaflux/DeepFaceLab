@@ -37,6 +37,38 @@ class ModelBase(object):
                        force_model_class_name=None,
                        silent_start=False,
                        target_iter=None,
+                       autobackup_hour=None,
+                       write_preview_history=None,
+                       random_flip=None,
+                       random_src_flip=None,
+                       random_dst_flip=None,
+                       batch_size=None,
+                       resolution=None,
+                       face_type=None,
+                       models_opt_on_gpu=None,
+                       archi=None,
+                       ae_dims=None,
+                       e_dims=None,
+                       d_dims=None,
+                       d_mask_dims=None,
+                       masked_training=None,
+                       eyes_mouth_prio=None,
+                       uniform_yaw=None,
+                       blur_out_mask=None,
+                       adabelief=None,
+                       lr_drop=None,
+                       random_warp=None,
+                       random_hsv_power=None,
+                       true_face_power=None,
+                       face_style_power=None,
+                       bg_style_power=None,
+                       ct_mode=None,
+                       clipgrad=None,
+                       pretrain=None,
+                       gan_power=None,
+                       gan_patch_size=None,
+                       gan_dims=None,
+                       from_trainer=True,
                        **kwargs):
         self.is_training = is_training
         self.is_exporting = is_exporting
@@ -47,7 +79,14 @@ class ModelBase(object):
         self.pretrained_model_path = pretrained_model_path
         self.no_preview = no_preview
         self.debug = debug
+
         self.target_iter = int(target_iter or 0)
+        self.autobackup_hour = int(autobackup_hour or 0)
+        self.write_preview_history = bool(write_preview_history or False)
+        self.random_flip = bool(random_flip or True)
+        self.random_src_flip = bool(random_src_flip or False)
+        self.random_dst_flip = bool(random_dst_flip or True)
+        self.batch_size = int(batch_size or 8)
 
         self.model_class_name = model_class_name = Path(inspect.getmodule(self).__file__).parent.name.rsplit("_", 1)[1]
 
@@ -137,6 +176,34 @@ class ModelBase(object):
 
         self.iter = 0
         self.options = {}
+
+        if from_trainer:
+            self.options['resolution'] = int(resolution)
+            self.options['face_type'] = face_type
+            self.options['models_opt_on_gpu'] = bool(models_opt_on_gpu)
+            self.options['archi'] = archi
+            self.options['ae_dims'] = int(ae_dims)
+            self.options['e_dims'] = int(e_dims)
+            self.options['d_dims'] = d_dims
+            self.options['d_mask_dims'] = d_mask_dims
+            self.options['masked_training'] = bool(masked_training)
+            self.options['eyes_mouth_prio'] = bool(eyes_mouth_prio)
+            self.options['uniform_yaw'] = bool(uniform_yaw)
+            self.options['blur_out_mask'] = bool(blur_out_mask)
+            self.options['adabelief'] = bool(adabelief)
+            self.options['lr_dropout'] = lr_drop
+            self.options['random_warp'] = bool(random_warp)
+            self.options['random_hsv_power'] = float(random_hsv_power)
+            self.options['true_face_power'] = float(true_face_power)
+            self.options['face_style_power'] = float(face_style_power)
+            self.options['bg_style_power'] = float(bg_style_power)
+            self.options['ct_mode'] = ct_mode
+            self.options['clipgrad'] = bool(clipgrad)
+            self.options['pretrain'] = bool(pretrain)
+            self.options['gan_power'] = float(gan_power)
+            self.options['gan_patch_size'] = int(gan_patch_size or self.options['resolution'] // 8)
+            self.options['gan_dims'] = int(gan_dims)
+
         self.options_show_override = {}
         self.loss_history = []
         self.sample_for_preview = None
@@ -179,7 +246,7 @@ class ModelBase(object):
                 pass
 
         self.choose_preview_history = False
-        self.batch_size = self.load_or_def_option('batch_size', 1)
+        # self.batch_size = self.load_or_def_option('batch_size', 1)
         #####
 
         io.input_skip_pending()
@@ -189,12 +256,12 @@ class ModelBase(object):
             # save as default options only for first run model initialize
             self.default_options_path.write_bytes( pickle.dumps (self.options) )
 
-        self.autobackup_hour = self.options.get('autobackup_hour', 0)
-        self.write_preview_history = self.options.get('write_preview_history', False)
+        # self.autobackup_hour = self.options.get('autobackup_hour', 0)
+        # self.write_preview_history = self.options.get('write_preview_history', False)
         # self.target_iter = self.options.get('target_iter',0)
-        self.random_flip = self.options.get('random_flip',True)
-        self.random_src_flip = self.options.get('random_src_flip', False)
-        self.random_dst_flip = self.options.get('random_dst_flip', True)
+        # self.random_flip = self.options.get('random_flip',True)
+        # self.random_src_flip = self.options.get('random_src_flip', False)
+        # self.random_dst_flip = self.options.get('random_dst_flip', True)
 
         self.on_initialize()
         self.options['batch_size'] = self.batch_size
@@ -287,14 +354,14 @@ class ModelBase(object):
         return self.is_training and self.iter != 0 and io.input_in_time ("Press enter in 2 seconds to override model settings.", 5 if io.is_colab() else 2 )
 
     def ask_autobackup_hour(self, default_value=0):
-        default_autobackup_hour = self.options['autobackup_hour'] = self.load_or_def_option('autobackup_hour', default_value)
+        # default_autobackup_hour = self.options['autobackup_hour'] = self.load_or_def_option('autobackup_hour', default_value)
         # self.options['autobackup_hour'] = io.input_int(f"Autobackup every N hour", default_autobackup_hour, add_info="0..24", help_message="Autobackup model files with preview every N hour. Latest backup located in model/<>_autobackups/01")
-        self.options['autobackup_hour'] = default_autobackup_hour
+        self.options['autobackup_hour'] = self.autobackup_hour or default_value
 
     def ask_write_preview_history(self, default_value=False):
         default_write_preview_history = self.load_or_def_option('write_preview_history', default_value)
         # self.options['write_preview_history'] = io.input_bool(f"Write preview history", default_write_preview_history, help_message="Preview history will be writed to <ModelName>_history folder.")
-        self.options['write_preview_history'] = default_write_preview_history
+        self.options['write_preview_history'] = self.write_preview_history or default_value
 
         if self.options['write_preview_history']:
             if io.is_support_windows():
@@ -310,23 +377,23 @@ class ModelBase(object):
     def ask_random_flip(self):
         default_random_flip = self.load_or_def_option('random_flip', True)
         # self.options['random_flip'] = io.input_bool("Flip faces randomly", default_random_flip, help_message="Predicted face will look more naturally without this option, but src faceset should cover all face directions as dst faceset.")
-        self.options['write_preview_history'] = default_random_flip
+        self.options['random_flip'] = self.random_flip
 
     def ask_random_src_flip(self):
         default_random_src_flip = self.load_or_def_option('random_src_flip', False)
         # self.options['random_src_flip'] = io.input_bool("Flip SRC faces randomly", default_random_src_flip, help_message="Random horizontal flip SRC faceset. Covers more angles, but the face may look less naturally.")
-        self.options['random_src_flip'] = default_random_src_flip
+        self.options['random_src_flip'] = self.random_src_flip
 
     def ask_random_dst_flip(self):
         default_random_dst_flip = self.load_or_def_option('random_dst_flip', True)
         # self.options['random_dst_flip'] = io.input_bool("Flip DST faces randomly", default_random_dst_flip, help_message="Random horizontal flip DST faceset. Makes generalization of src->dst better, if src random flip is not enabled.")
-        self.options['random_dst_flip'] = default_random_dst_flip
+        self.options['random_dst_flip'] = self.random_dst_flip
 
     def ask_batch_size(self, suggest_batch_size=None, range=None):
         default_batch_size = self.load_or_def_option('batch_size', suggest_batch_size or self.batch_size)
 
         # batch_size = max(0, io.input_int("Batch_size", default_batch_size, valid_range=range, help_message="Larger batch size is better for NN's generalization, but it can cause Out of Memory error. Tune this value for your videocard manually."))
-        batch_size = default_batch_size
+        batch_size = self.batch_size or default_batch_size
 
         if range is not None:
             batch_size = np.clip(batch_size, range[0], range[1])

@@ -26,7 +26,23 @@ def main (model_class_name=None,
           output_mask_path=None,
           aligned_path=None,
           force_gpu_idxs=None,
-          cpu_only=None):
+          cpu_only=None,
+          face_type=4,
+          default_mode = 'overlay',
+          mode='overlay',
+          masked_hist_match=True,
+          hist_match_threshold = 238,
+          mask_mode = 4,
+          erode_mask_modifier = 0,
+          blur_mask_modifier = 0,
+          motion_blur_power = 0,
+          output_face_scale = 0,
+          super_resolution_power = 0,
+          color_transfer_mode = 1,
+          image_denoise_power = 0,
+          bicubic_degrade_power = 0,
+          color_degrade_power = 0,
+          ):
     io.log_info ("Running merger.\r\n")
 
     try:
@@ -50,9 +66,26 @@ def main (model_class_name=None,
                                                       saved_models_path=saved_models_path,
                                                       force_gpu_idxs=force_gpu_idxs,
                                                       force_model_name=force_model_name,
-                                                      cpu_only=cpu_only)
+                                                      cpu_only=cpu_only,
+                                                      from_trainer=False)
 
-        predictor_func, predictor_input_shape, cfg = model.get_MergerConfig()
+        predictor_func, predictor_input_shape, cfg = model.get_MergerConfig(
+          face_type=int(face_type),
+          default_mode = default_mode,
+          mode=mode,
+          masked_hist_match=bool(masked_hist_match),
+          hist_match_threshold = int(hist_match_threshold),
+          mask_mode = int(mask_mode),
+          erode_mask_modifier = int(erode_mask_modifier),
+          blur_mask_modifier = int(blur_mask_modifier),
+          motion_blur_power = int(motion_blur_power),
+          output_face_scale = int(output_face_scale),
+          super_resolution_power = int(super_resolution_power),
+          color_transfer_mode = int(color_transfer_mode),
+          image_denoise_power = int(image_denoise_power),
+          bicubic_degrade_power = int(bicubic_degrade_power),
+          color_degrade_power = int(color_degrade_power),
+        )
 
         # Preparing MP functions
         predictor_func = MPFunc(predictor_func)

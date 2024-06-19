@@ -170,17 +170,17 @@ class SAEHDModel(ModelBase):
             self.options['random_warp'] = default_random_warp
 
             # self.options['random_hsv_power'] = np.clip ( io.input_number ("Random hue/saturation/light intensity", default_random_hsv_power, add_info="0.0 .. 0.3", help_message="Random hue/saturation/light intensity applied to the src face set only at the input of the neural network. Stabilizes color perturbations during face swapping. Reduces the quality of the color transfer by selecting the closest one in the src faceset. Thus the src faceset must be diverse enough. Typical fine value is 0.05"), 0.0, 0.3 )
-            self.options['random_hsv_power'] = default_random_hsv_power
+            self.options['random_hsv_power'] = np.clip(default_random_hsv_power, 0.0, 0.3)
 
             # self.options['gan_power'] = np.clip ( io.input_number ("GAN power", default_gan_power, add_info="0.0 .. 5.0", help_message="Forces the neural network to learn small details of the face. Enable it only when the face is trained enough with lr_dropout(on) and random_warp(off), and don't disable. The higher the value, the higher the chances of artifacts. Typical fine value is 0.1"), 0.0, 5.0 )
-            self.options['gan_power'] = default_gan_power
+            self.options['gan_power'] = np.clip(default_gan_power, 0.0, 5.0)
 
             if self.options['gan_power'] != 0.0:
-                gan_patch_size = np.clip ( io.input_int("GAN patch size", default_gan_patch_size, add_info="3-640", help_message="The higher patch size, the higher the quality, the more VRAM is required. You can get sharper edges even at the lowest setting. Typical fine value is resolution / 8." ), 3, 640 )
-                self.options['gan_patch_size'] = gan_patch_size
+                # gan_patch_size = np.clip ( io.input_int("GAN patch size", default_gan_patch_size, add_info="3-640", help_message="The higher patch size, the higher the quality, the more VRAM is required. You can get sharper edges even at the lowest setting. Typical fine value is resolution / 8." ), 3, 640 )
+                self.options['gan_patch_size'] = np.clip(default_gan_patch_size, 3, 640)
 
-                gan_dims = np.clip ( io.input_int("GAN dimensions", default_gan_dims, add_info="4-512", help_message="The dimensions of the GAN network. The higher dimensions, the more VRAM is required. You can get sharper edges even at the lowest setting. Typical fine value is 16." ), 4, 512 )
-                self.options['gan_dims'] = gan_dims
+                # gan_dims = np.clip ( io.input_int("GAN dimensions", default_gan_dims, add_info="4-512", help_message="The dimensions of the GAN network. The higher dimensions, the more VRAM is required. You can get sharper edges even at the lowest setting. Typical fine value is 16." ), 4, 512 )
+                self.options['gan_dims'] = np.clip(default_gan_dims, 4, 512)
 
             if 'df' in self.options['archi']:
                 self.options['true_face_power'] = np.clip ( io.input_number ("'True face' power.", default_true_face_power, add_info="0.0000 .. 1.0", help_message="Experimental option. Discriminates result face to be more like src face. Higher value - stronger discrimination. Typical value is 0.01 . Comparison - https://i.imgur.com/czScS9q.png"), 0.0, 1.0 )
@@ -887,8 +887,40 @@ class SAEHDModel(ModelBase):
         return bgr[0], mask_src_dstm[0][...,0], mask_dst_dstm[0][...,0]
 
     #override
-    def get_MergerConfig(self):
+    def get_MergerConfig(self,
+          face_type=4,
+          default_mode = 'overlay',
+          mode='overlay',
+          masked_hist_match=True,
+          hist_match_threshold = 238,
+          mask_mode = 4,
+          erode_mask_modifier = 0,
+          blur_mask_modifier = 0,
+          motion_blur_power = 0,
+          output_face_scale = 0,
+          super_resolution_power = 0,
+          color_transfer_mode = 1,
+          image_denoise_power = 0,
+          bicubic_degrade_power = 0,
+          color_degrade_power = 0,
+        ):
         import merger
-        return self.predictor_func, (self.options['resolution'], self.options['resolution'], 3), merger.MergerConfigMasked(face_type=self.face_type, default_mode = 'overlay')
+        return self.predictor_func, (self.options['resolution'], self.options['resolution'], 3), merger.MergerConfigMasked(
+          face_type=face_type,
+          default_mode = default_mode,
+          mode=mode,
+          masked_hist_match=masked_hist_match,
+          hist_match_threshold = hist_match_threshold,
+          mask_mode = mask_mode,
+          erode_mask_modifier = erode_mask_modifier,
+          blur_mask_modifier = blur_mask_modifier,
+          motion_blur_power = motion_blur_power,
+          output_face_scale = output_face_scale,
+          super_resolution_power = super_resolution_power,
+          color_transfer_mode = color_transfer_mode,
+          image_denoise_power = image_denoise_power,
+          bicubic_degrade_power = bicubic_degrade_power,
+          color_degrade_power = color_degrade_power,
+)
 
 Model = SAEHDModel

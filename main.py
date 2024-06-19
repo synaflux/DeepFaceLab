@@ -133,6 +133,36 @@ if __name__ == "__main__":
                   'execute_programs'         : [ [int(x[0]), x[1] ] for x in arguments.execute_program ],
                   'target_iter'              : arguments.target_iter,
                   'debug'                    : arguments.debug,
+                  'autobackup_hour'          : arguments.autobackup_hour,
+                  'random_flip'              : arguments.random_flip,
+                  'random_src_flip'          : arguments.random_src_flip,
+                  'random_dst_flip'          : arguments.random_dst_flip,
+                  'batch_size'               : arguments.batch_size,
+                  'resolution'               : arguments.resolution,
+                  'face_type'                : arguments.face_type,
+                  'models_opt_on_gpu'        : arguments.models_opt_on_gpu,
+                  'archi'                    : arguments.archi,
+                  'ae_dims'                  : arguments.ae_dims,
+                  'e_dims'                   : arguments.e_dims,
+                  'd_dims'                   : arguments.d_dims,
+                  'd_mask_dims'              : arguments.d_mask_dims,
+                  'masked_training'          : arguments.masked_training,
+                  'eyes_mouth_prio'          : arguments.eyes_mouth_prio,
+                  'uniform_yaw'              : arguments.uniform_yaw,
+                  'blur_out_mask'            : arguments.blur_out_mask,
+                  'adabelief'                : arguments.adabelief,
+                  'lr_drop'                  : arguments.lr_drop,
+                  'random_warp'              : arguments.random_warp,
+                  'random_hsv_power'         : arguments.random_hsv_power,
+                  'true_face_power'          : arguments.true_face_power,
+                  'face_style_power'         : arguments.face_style_power,
+                  'bg_style_power'           : arguments.bg_style_power,
+                  'ct_mode'                  : arguments.ct_mode,
+                  'clipgrad'                 : arguments.clipgrad,
+                  'pretrain'                 : arguments.pretrain,
+                  'gan_power'                : arguments.gan_power,
+                  'gan_patch_size'           : arguments.gan_patch_size,
+                  'gan_dims'                 : arguments.gan_dims,
                   }
         from mainscripts import Trainer
         Trainer.main(**kwargs)
@@ -151,6 +181,36 @@ if __name__ == "__main__":
     p.add_argument('--force-gpu-idxs', dest="force_gpu_idxs", default=None, help="Force to choose GPU indexes separated by comma.")
     p.add_argument('--target_iter', dest="target_iter", default=0, help="Target Iteration")
     p.add_argument('--silent-start', action="store_true", dest="silent_start", default=False, help="Silent start. Automatically chooses Best GPU and last used model.")
+    p.add_argument('--autobackup_hour', dest="autobackup_hour", default=0, help="Autobackup model files with preview every N hour. Latest backup located in model/<>_autobackups/01")
+    p.add_argument('--random_flip', dest="random_flip", default=True, help="Predicted face will look more naturally without this option, but src faceset should cover all face directions as dst faceset.")
+    p.add_argument('--random_src_flip', dest="random_src_flip", default=False, help="Random horizontal flip SRC faceset. Covers more angles, but the face may look less naturally.")
+    p.add_argument('--random_dst_flip', dest="random_dst_flip", default=True, help="Random horizontal flip DST faceset. Makes generalization of src->dst better, if src random flip is not enabled.")
+    p.add_argument('--batch_size', dest="batch_size", default=8, help="Larger batch size is better for NN's generalization, but it can cause Out of Memory error. Tune this value for your videocard manually.")
+    p.add_argument('--resolution', dest="resolution", default=128)
+    p.add_argument('--face_type', dest="face_type", default='wf')
+    p.add_argument('--models_opt_on_gpu', dest="models_opt_on_gpu", default=True)
+    p.add_argument('--archi', dest="archi", default="liae-ud")
+    p.add_argument('--ae_dims', dest="ae_dims", default=256)
+    p.add_argument('--e_dims', dest="e_dims", default=64)
+    p.add_argument('--d_dims', dest="d_dims", default=None)
+    p.add_argument('--d_mask_dims', dest="d_mask_dims", default=None)
+    p.add_argument('--masked_training', dest="masked_training", default=True)
+    p.add_argument('--eyes_mouth_prio', dest="eyes_mouth_prio", default=False)
+    p.add_argument('--uniform_yaw', dest="uniform_yaw", default=False)
+    p.add_argument('--blur_out_mask', dest="blur_out_mask", default=False)
+    p.add_argument('--adabelief', dest="adabelief", default=True)
+    p.add_argument('--lr_drop', dest="lr_drop", default="n")
+    p.add_argument('--random_warp', dest="random_warp", default=True)
+    p.add_argument('--random_hsv_power', dest="random_hsv_power", default=0.0)
+    p.add_argument('--true_face_power', dest="true_face_power", default=0.0)
+    p.add_argument('--face_style_power', dest="face_style_power", default=0.0)
+    p.add_argument('--bg_style_power', dest="bg_style_power", default=0.0)
+    p.add_argument('--ct_mode', dest="ct_mode", default="none")
+    p.add_argument('--clipgrad', dest="clipgrad", default=False)
+    p.add_argument('--pretrain', dest="pretrain", default=False)
+    p.add_argument('--gan_power', dest="gan_power", default=0.0)
+    p.add_argument('--gan_patch_size', dest="gan_patch_size", default=None)
+    p.add_argument('--gan_dims', dest="gan_dims", default=16)
 
     p.add_argument('--execute-program', dest="execute_program", default=[], action='append', nargs='+')
     p.set_defaults (func=process_train)
@@ -176,7 +236,22 @@ if __name__ == "__main__":
                       output_mask_path       = Path(arguments.output_mask_dir),
                       aligned_path           = Path(arguments.aligned_dir) if arguments.aligned_dir is not None else None,
                       force_gpu_idxs         = arguments.force_gpu_idxs,
-                      cpu_only               = arguments.cpu_only)
+                      cpu_only               = arguments.cpu_only,
+                      face_type              = arguments.face_type,
+                      default_mode           = arguments.default_mode,
+                      mode                   = arguments.mode,
+                      masked_hist_match      = arguments.masked_hist_match,
+                      hist_match_threshold   = arguments.hist_match_threshold,
+                      mask_mode              = arguments.mask_mode,
+                      erode_mask_modifier    = arguments.erode_mask_modifier,
+                      blur_mask_modifier     = arguments.blur_mask_modifier,
+                      motion_blur_power      = arguments.motion_blur_power,
+                      output_face_scale      = arguments.output_face_scale,
+                      super_resolution_power = arguments.super_resolution_power,
+                      color_transfer_mode    = arguments.color_transfer_mode,
+                      image_denoise_power    = arguments.image_denoise_power,
+                      bicubic_degrade_power  = arguments.bicubic_degrade_power,
+                      color_degrade_power    = arguments.color_degrade_power)
 
     p = subparsers.add_parser( "merge", help="Merger")
     p.add_argument('--input-dir', required=True, action=fixPathAction, dest="input_dir", help="Input directory. A directory containing the files you wish to process.")
@@ -188,6 +263,21 @@ if __name__ == "__main__":
     p.add_argument('--force-model-name', dest="force_model_name", default=None, help="Forcing to choose model name from model/ folder.")
     p.add_argument('--cpu-only', action="store_true", dest="cpu_only", default=False, help="Merge on CPU.")
     p.add_argument('--force-gpu-idxs', dest="force_gpu_idxs", default=None, help="Force to choose GPU indexes separated by comma.")
+    p.add_argument('--face_type', dest="face_type", default=4)
+    p.add_argument('--default_mode', dest="default_mode", default="overlay")
+    p.add_argument('--mode', dest="mode", default="overlay")
+    p.add_argument('--masked_hist_match', dest="masked_hist_match", default=True)
+    p.add_argument('--hist_match_threshold', dest="hist_match_threshold", default=238)
+    p.add_argument('--mask_mode', dest="mask_mode", default=4)
+    p.add_argument('--erode_mask_modifier', dest="erode_mask_modifier", default=0)
+    p.add_argument('--blur_mask_modifier', dest="blur_mask_modifier", default=0)
+    p.add_argument('--motion_blur_power', dest="motion_blur_power", default=0)
+    p.add_argument('--super_resolution_power', dest="super_resolution_power", default=0)
+    p.add_argument('--color_transfer_mode', dest="color_transfer_mode", default=1)
+    p.add_argument('--output_face_scale', dest="output_face_scale", default=0)
+    p.add_argument('--image_denoise_power', dest="image_denoise_power", default=0)
+    p.add_argument('--bicubic_degrade_power', dest="bicubic_degrade_power", default=0)
+    p.add_argument('--color_degrade_power', dest="color_degrade_power", default=0)
     p.set_defaults(func=process_merge)
 
     videoed_parser = subparsers.add_parser( "videoed", help="Video processing.").add_subparsers()
