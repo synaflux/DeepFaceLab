@@ -1,4 +1,5 @@
 import colorsys
+import distutils.util
 import inspect
 import json
 import multiprocessing
@@ -9,6 +10,7 @@ import shutil
 import tempfile
 import time
 from pathlib import Path
+import distutils
 
 import cv2
 import numpy as np
@@ -83,9 +85,9 @@ class ModelBase(object):
         self.target_iter = int(target_iter or 0)
         self.autobackup_hour = int(autobackup_hour or 0)
         self.write_preview_history = bool(write_preview_history or False)
-        self.random_flip = bool(random_flip or True)
-        self.random_src_flip = bool(random_src_flip or False)
-        self.random_dst_flip = bool(random_dst_flip or True)
+        self.random_flip = bool(distutils.util.strtobool(random_flip) or True)
+        self.random_src_flip = bool(distutils.util.strtobool(random_src_flip) or False)
+        self.random_dst_flip = bool(distutils.util.strtobool(random_dst_flip) or True)
         self.batch_size = int(batch_size or 8)
 
         self.model_class_name = model_class_name = Path(inspect.getmodule(self).__file__).parent.name.rsplit("_", 1)[1]
@@ -180,26 +182,26 @@ class ModelBase(object):
         if from_trainer:
             self.options['resolution'] = int(resolution)
             self.options['face_type'] = face_type
-            self.options['models_opt_on_gpu'] = bool(models_opt_on_gpu)
+            self.options['models_opt_on_gpu'] = bool(distutils.util.strtobool(models_opt_on_gpu))
             self.options['archi'] = archi
             self.options['ae_dims'] = int(ae_dims)
             self.options['e_dims'] = int(e_dims)
             self.options['d_dims'] = d_dims
             self.options['d_mask_dims'] = d_mask_dims
-            self.options['masked_training'] = bool(masked_training)
-            self.options['eyes_mouth_prio'] = bool(eyes_mouth_prio)
-            self.options['uniform_yaw'] = bool(uniform_yaw)
-            self.options['blur_out_mask'] = bool(blur_out_mask)
-            self.options['adabelief'] = bool(adabelief)
+            self.options['masked_training'] = bool(distutils.util.strtobool(masked_training))
+            self.options['eyes_mouth_prio'] = bool(distutils.util.strtobool(eyes_mouth_prio))
+            self.options['uniform_yaw'] = bool(distutils.util.strtobool(uniform_yaw))
+            self.options['blur_out_mask'] = bool(distutils.util.strtobool(blur_out_mask))
+            self.options['adabelief'] = bool(distutils.util.strtobool(adabelief))
             self.options['lr_dropout'] = lr_drop
-            self.options['random_warp'] = bool(random_warp)
+            self.options['random_warp'] = bool(distutils.util.strtobool(random_warp))
             self.options['random_hsv_power'] = float(random_hsv_power)
             self.options['true_face_power'] = float(true_face_power)
             self.options['face_style_power'] = float(face_style_power)
             self.options['bg_style_power'] = float(bg_style_power)
             self.options['ct_mode'] = ct_mode
-            self.options['clipgrad'] = bool(clipgrad)
-            self.options['pretrain'] = bool(pretrain)
+            self.options['clipgrad'] = bool(distutils.util.strtobool(clipgrad))
+            self.options['pretrain'] = bool(distutils.util.strtobool(pretrain))
             self.options['gan_power'] = float(gan_power)
             self.options['gan_patch_size'] = int(gan_patch_size or self.options['resolution'] // 8)
             self.options['gan_dims'] = int(gan_dims)

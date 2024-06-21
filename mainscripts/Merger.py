@@ -1,7 +1,9 @@
-﻿import math
+﻿import distutils.util
+import math
 import multiprocessing
 import traceback
 from pathlib import Path
+import distutils
 
 import numpy as np
 import numpy.linalg as npla
@@ -75,7 +77,7 @@ def main (model_class_name=None,
           face_type=int(face_type),
           default_mode = default_mode,
           mode=mode,
-          masked_hist_match=bool(masked_hist_match),
+          masked_hist_match=bool(distutils.util.strtobool(masked_hist_match)),
           hist_match_threshold = int(hist_match_threshold),
           mask_mode = int(mask_mode),
           erode_mask_modifier = int(erode_mask_modifier),
