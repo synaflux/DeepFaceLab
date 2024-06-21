@@ -278,6 +278,8 @@ if __name__ == "__main__":
     p.add_argument('--image_denoise_power', dest="image_denoise_power", default=0)
     p.add_argument('--bicubic_degrade_power', dest="bicubic_degrade_power", default=0)
     p.add_argument('--color_degrade_power', dest="color_degrade_power", default=0)
+    p.add_argument('--sharpen_mode', dest="sharpen_mode", default=0)
+    p.add_argument('--blursharpen_amount', dest="blursharpen_amount", default=0)
     p.set_defaults(func=process_merge)
 
     videoed_parser = subparsers.add_parser( "videoed", help="Video processing.").add_subparsers()

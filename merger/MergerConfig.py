@@ -37,10 +37,11 @@ class MergerConfig(object):
             s += f"""({key}) {self.sharpen_dict[key]}\n"""
         io.log_info(s)
         # self.sharpen_mode = io.input_int ("", 0, valid_list=self.sharpen_dict.keys(), help_message="Enhance details by applying sharpen filter.")
-        self.sharpen_mode = 0
+        self.sharpen_mode = self.sharpen_mode
 
         if self.sharpen_mode != 0:
-            self.blursharpen_amount = np.clip ( io.input_int ("Choose blur/sharpen amount", 0, add_info="-100..100"), -100, 100 )
+            # self.blursharpen_amount = np.clip ( io.input_int ("Choose blur/sharpen amount", 0, add_info="-100..100"), -100, 100 )
+            self.blursharpen_amount = self.blursharpen_amount
 
     def toggle_sharpen_mode(self):
         a = list( self.sharpen_dict.keys() )
@@ -103,6 +104,8 @@ class MergerConfigMasked(MergerConfig):
     def __init__(self, face_type=FaceType.FULL,
                        default_mode = 'overlay',
                        mode='overlay',
+                       sharpen_mode=0,
+                       blursharpen_amount=0,
                        masked_hist_match=True,
                        hist_match_threshold = 238,
                        mask_mode = 4,
@@ -131,6 +134,8 @@ class MergerConfigMasked(MergerConfig):
             mode = mode_dict[1]
 
         self.mode = mode
+        self.sharpen_mode = sharpen_mode
+        self.blursharpen_amount = blursharpen_amount
         self.masked_hist_match = masked_hist_match
         self.hist_match_threshold = hist_match_threshold
         self.mask_mode = mask_mode

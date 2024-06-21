@@ -42,6 +42,8 @@ def main (model_class_name=None,
           image_denoise_power = 0,
           bicubic_degrade_power = 0,
           color_degrade_power = 0,
+          sharpen_mode=0,
+          blursharpen_amount=0
           ):
     io.log_info ("Running merger.\r\n")
 
@@ -85,6 +87,8 @@ def main (model_class_name=None,
           image_denoise_power = int(image_denoise_power),
           bicubic_degrade_power = int(bicubic_degrade_power),
           color_degrade_power = int(color_degrade_power),
+          sharpen_mode = int(sharpen_mode),
+          blursharpen_amount = int(blursharpen_amount)
         )
 
         # Preparing MP functions
