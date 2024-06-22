@@ -903,6 +903,8 @@ class SAEHDModel(ModelBase):
           image_denoise_power = 0,
           bicubic_degrade_power = 0,
           color_degrade_power = 0,
+          sharpen_mode=0,
+          blursharpen_amount=0
         ):
         import merger
         return self.predictor_func, (self.options['resolution'], self.options['resolution'], 3), merger.MergerConfigMasked(
@@ -921,6 +923,8 @@ class SAEHDModel(ModelBase):
           image_denoise_power = image_denoise_power,
           bicubic_degrade_power = bicubic_degrade_power,
           color_degrade_power = color_degrade_power,
+          sharpen_mode=sharpen_mode,
+          blursharpen_amount=blursharpen_amount
 )
 
 Model = SAEHDModel
