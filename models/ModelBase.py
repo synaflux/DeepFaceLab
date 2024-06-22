@@ -85,9 +85,9 @@ class ModelBase(object):
         self.target_iter = int(target_iter or 0)
         self.autobackup_hour = int(autobackup_hour or 0)
         self.write_preview_history = bool(write_preview_history or False)
-        self.random_flip = bool(distutils.util.strtobool(random_flip) or True)
-        self.random_src_flip = bool(distutils.util.strtobool(random_src_flip) or False)
-        self.random_dst_flip = bool(distutils.util.strtobool(random_dst_flip) or True)
+        self.random_flip = bool(distutils.util.strtobool(random_flip or "True"))
+        self.random_src_flip = bool(distutils.util.strtobool(random_src_flip or "False"))
+        self.random_dst_flip = bool(distutils.util.strtobool(random_dst_flip or "True"))
         self.batch_size = int(batch_size or 8)
 
         self.model_class_name = model_class_name = Path(inspect.getmodule(self).__file__).parent.name.rsplit("_", 1)[1]
